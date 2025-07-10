@@ -16,10 +16,12 @@ begin
 		where f.ID = @Record_ID
 			and f.FlagLoaded = cast(1 as bit)
 	)
+	begin
 		set @ErrorMessage = 'Ошибка при загрузке файла, проверьте корректность данных'
 
 		raiserror(@ErrorMessage, 3, 1)
 		return
+	end
 
 	-- Чтение из слоя временных данных
 	select
@@ -62,8 +64,8 @@ begin
 	left join dbo.Customer as c_dist on cs.UID_DS_CustomerDistributor = c_dist.UID_DS and c_dist.ID_mapping_DataSource = 1
 	left join dbo.Season as s on s.Name = cs.Season
 	left join syn.CustomerSystemType as cst on cst.Name = cs.CustomerSystemType
-	where c.ID is null
-		or c_dist.ID is null
+	where cc.ID is null
+		or cd.ID is null
 		or s.ID is null
 		or cst.ID is null
 		or try_cast(cs.DateBegin as date) is null
@@ -99,7 +101,6 @@ begin
 	-- Информационное сообщение
 	begin
 		select @ErrorMessage = concat('Обработано строк: ', @RowCount)
-
 		raiserror(@ErrorMessage, 1, 1)
 
 		-- Формирование таблицы для отчетности
